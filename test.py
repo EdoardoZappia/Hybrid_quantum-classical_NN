@@ -223,7 +223,7 @@ steps = []
 sdg_losses = []
 for _ in range(step):
     with tf.GradientTape() as tape:
-        loss = new_cost(x)
+        loss = graph_cost(x)
 
     steps.append(x)
     sdg_losses.append(loss)
