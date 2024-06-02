@@ -173,7 +173,11 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
     initial_params = tf.ones(shape=(1, 2 * n_layers))
     initial_h = tf.ones(shape=(1, 2 * n_layers))
     initial_c = tf.ones(shape=(1, 2 * n_layers))
-    
+
+    #DEBUG
+    print('test')
+    #
+
     costs = []
     outputs = [hybrid_iteration([initial_cost, initial_params, initial_h, initial_c], graph_cost, lstm_cell_trained, n_layers)]
     costs.append(outputs[0][0].numpy().flatten()[0])
@@ -205,6 +209,11 @@ lstm_cell_trained = TrainLSTM(graphs, learning_rate, batch_size, epoch, n_thread
 # Creiamo un grafico di test con 20 nodi
 test_graph = create_test_graph(20)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=n_layers)
+
+#DEBUG
+print('1')
+#
+
 # Eseguiamo il test del modello
 final_cost = test_model(lstm_cell_trained, graph_cost, n_layers=n_layers)
 
@@ -217,6 +226,10 @@ x = tf.Variable(tf.ones((2, 2)))
 # We set the optimizer to be a Stochastic Gradient Descent
 opt = tf.keras.optimizers.SGD(learning_rate=0.01)
 step = 15
+
+#DEBUG
+print('SGD')
+#
 
 # Training process
 steps = []
