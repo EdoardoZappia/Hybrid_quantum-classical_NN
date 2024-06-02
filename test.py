@@ -168,8 +168,7 @@ def create_test_graph(n_nodes=20):
     edge_prob = k / n_nodes
     return nx.erdos_renyi_graph(n_nodes, edge_prob)
 
-def test_model(lstm_cell_trained, graph, n_layers=2, num_iterations=10, output_filename="cost_function_plot.png"):
-    graph_cost = qaoa_maxcut_graph(graph, n_layers=n_layers)
+def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, output_filename="cost_function_plot.png"):
     initial_cost = tf.ones(shape=(1, 1))
     initial_params = tf.ones(shape=(1, 2 * n_layers))
     initial_h = tf.ones(shape=(1, 2 * n_layers))
@@ -205,9 +204,46 @@ lstm_cell_trained = TrainLSTM(graphs, learning_rate, batch_size, epoch, n_thread
 
 # Creiamo un grafico di test con 20 nodi
 test_graph = create_test_graph(20)
-
+graph_cost = qaoa_maxcut_graph(test_graph, n_layers=n_layers)
 # Eseguiamo il test del modello
-final_cost = test_model(lstm_cell_trained, test_graph, n_layers=n_layers)
+final_cost = test_model(lstm_cell_trained, graph_cost, n_layers=n_layers)
 
 # Stampa il costo finale ottenuto dal modello
 print("Final cost for the test graph:", final_cost)
+
+# Parameters are randomly initialized
+x = tf.Variable(tf.ones((2, 2)))
+
+# We set the optimizer to be a Stochastic Gradient Descent
+opt = tf.keras.optimizers.SGD(learning_rate=0.01)
+step = 15
+
+# Training process
+steps = []
+sdg_losses = []
+for _ in range(step):
+    with tf.GradientTape() as tape:
+        loss = new_cost(x)
+
+    steps.append(x)
+    sdg_losses.append(loss)
+
+    gradients = tape.gradient(loss, [x])
+    opt.apply_gradients(zip(gradients, [x]))
+    print(f"Step {_+1} - Loss = {loss}")
+
+print(f"Final cost function: {new_cost(x).numpy()}\nOptimized angles: {x.numpy()}")
+
+fig, ax = plt.subplots()
+
+plt.plot(sdg_losses, color="orange", lw=3, label="SGD")
+
+plt.plot(lstm_losses, color="blue", lw=3, ls="-.", label="LSTM")
+
+plt.grid(ls="--", lw=2, alpha=0.25)
+plt.legend()
+plt.ylabel("Cost function", fontsize=12)
+plt.xlabel("Iteration", fontsize=12)
+ax.set_xticks([0, 5, 10, 15, 20])
+
+plt.savefig("cost_function_plot.png")  # Salvataggio dell'immagine finale
