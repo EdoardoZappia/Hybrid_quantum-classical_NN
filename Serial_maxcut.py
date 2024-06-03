@@ -128,7 +128,7 @@ def create_test_graph(n_nodes=20):
 
 def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, output_filename="serial_NN_cost_function_plot.png"):
     start_zeros = tf.zeros(shape=(2 * n_layers, 1))
-    res = recurrent_loop(graph_cost, intermediate_steps=True)
+    res = recurrent_loop(graph_cost, lstm_cell_trained, intermediate_steps=True)
     # Inizializza le variabili per memorizzare i valori di guess
     guess_list = []
     guess_list.append(start_zeros)
