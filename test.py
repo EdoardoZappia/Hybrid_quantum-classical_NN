@@ -67,8 +67,25 @@ def hybrid_iteration(inputs, graph_cost, lstm_cell, n_layers=2):
     new_cost = tf.reshape(tf.cast(_cost, dtype=tf.float32), shape=(1, 1))
     return [new_cost, new_params, new_h, new_c]
 
-def recurrent_loop(graph_cost, lstm_cell, n_layers=2, intermediate_steps=False, num_iterations=10):
+#def recurrent_loop(graph_cost, lstm_cell, n_layers=2, intermediate_steps=False, num_iterations=10):
     
+#    initial_cost = tf.random.uniform(shape=(1, 1))
+#    initial_params = tf.random.uniform(shape=(1, 2 * n_layers))
+#    initial_h = tf.random.uniform(shape=(1, 2 * n_layers))
+#    initial_c = tf.random.uniform(shape=(1, 2 * n_layers))
+
+#    outputs = [hybrid_iteration([initial_cost, initial_params, initial_h, initial_c], graph_cost, lstm_cell, n_layers)]
+#    for _ in range(1, num_iterations):
+#        outputs.append(hybrid_iteration(outputs[-1], graph_cost, lstm_cell, n_layers))
+#    costs = [output[0] for output in outputs]
+#    loss = observed_improvement_loss(costs)
+#    if intermediate_steps:
+#        params = [output[1] for output in outputs]
+#        return costs, params + [loss]
+#    else:
+#        return costs, loss
+
+def recurrent_loop(graph_cost, lstm_cell, n_layers=2, intermediate_steps=False, num_iterations=10):
     initial_cost = tf.random.uniform(shape=(1, 1))
     initial_params = tf.random.uniform(shape=(1, 2 * n_layers))
     initial_h = tf.random.uniform(shape=(1, 2 * n_layers))
@@ -78,7 +95,11 @@ def recurrent_loop(graph_cost, lstm_cell, n_layers=2, intermediate_steps=False, 
     for _ in range(1, num_iterations):
         outputs.append(hybrid_iteration(outputs[-1], graph_cost, lstm_cell, n_layers))
     costs = [output[0] for output in outputs]
-    loss = observed_improvement_loss(costs)
+
+    # Calcoliamo la loss come la somma del miglioramento osservato in ciascuna iterazione
+    improvement = tf.reduce_sum(initial_cost - costs)
+    loss = -improvement
+
     if intermediate_steps:
         params = [output[1] for output in outputs]
         return costs, params + [loss]
