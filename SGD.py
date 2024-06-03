@@ -55,7 +55,7 @@ step = 5
 sdg_losses = []
 for i in range(step):
     print('dentro il for')
-    with tf.GradientTape() as tape:
+    with tf.GradientTape(persistent=True) as tape:
         print('dentro il tape')
         loss = graph_cost(x)
     print('i')
@@ -63,6 +63,7 @@ for i in range(step):
 
     gradients = tape.gradient(loss, [x])
     opt.apply_gradients(zip(gradients, [x]))
+    del tape
     print(f"Step {i+1} - Loss = {loss.numpy().flatten()[0]}")
 
 # Print final results
