@@ -43,9 +43,9 @@ test_graph = create_test_graph(20)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=2)
 print(f"Number of nodes: {test_graph.number_of_nodes()}")
 # Parameters are initialized to ones
-n_layers = 2
-params_shape = (n_layers, 2)
-x = tf.Variable(tf.ones(params_shape))
+#n_layers = 2
+#params_shape = (n_layers, 2)
+x = tf.Variable(np.random.rand(2, 2))
 
 # We set the optimizer to be a Stochastic Gradient Descent
 opt = tf.keras.optimizers.SGD(learning_rate=0.01)
