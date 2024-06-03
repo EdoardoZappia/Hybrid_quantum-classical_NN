@@ -125,7 +125,10 @@ def TrainLSTM(graphs, learning_rate, batch_size, epoch, n_layers):
 def create_test_graph(n_nodes=20):
     k = random.randint(3, n_nodes-1)
     edge_prob = k / n_nodes
-    return nx.erdos_renyi_graph(n_nodes, edge_prob)
+    new_graph = nx.gnp_random_graph(n_nodes, edge_prob)
+    nx.draw(new_graph)
+    plt.savefig("test_graph.png")
+    return new_graph
 
 def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, output_filename="serial_NN_cost_function_plot.png"):
     start_zeros = tf.zeros(shape=(2 * n_layers, 1))
