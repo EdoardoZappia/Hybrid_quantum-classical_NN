@@ -41,7 +41,7 @@ def qaoa_maxcut_graph(graph, n_layers=2):
 # Create a test graph
 test_graph = create_test_graph(20)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=2)
-
+print(f"Number of nodes: {test_graph.number_of_nodes()}")
 # Parameters are initialized to ones
 x = tf.Variable(tf.ones((2, 2)))
 
@@ -53,7 +53,9 @@ step = 15
 steps = []
 sdg_losses = []
 for i in range(step):
+    print('dentro il for')
     with tf.GradientTape() as tape:
+        print('dentro il tape')
         loss = graph_cost(x)
 
     sdg_losses.append(loss.numpy().flatten()[0])
