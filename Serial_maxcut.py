@@ -169,7 +169,7 @@ n_layers = 2
 lstm_cell_trained = TrainLSTM(graphs, learning_rate, batch_size, epoch, n_layers)
 
 # Creiamo un grafico di test con 10 nodi per ridurre la memoria
-test_graph = create_test_graph(10)
+test_graph = create_test_graph(15)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=n_layers)
 
 # Eseguiamo il test del modello
@@ -182,7 +182,7 @@ print("Final cost for the test graph:", lstm_losses[-1])
 x = tf.Variable(np.random.rand(2, 2))
 
 # We set the optimizer to be a Stochastic Gradient Descent
-opt = tf.keras.optimizers.SGD(learning_rate=0.01)
+opt = tf.keras.optimizers.SGD(learning_rate=0.1)
 step = 10
 
 # Training process
