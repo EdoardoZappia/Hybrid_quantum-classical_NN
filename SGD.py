@@ -50,14 +50,13 @@ opt = tf.keras.optimizers.SGD(learning_rate=0.01)
 step = 5
 
 # Training process
-steps = []
 sdg_losses = []
 for i in range(step):
     print('dentro il for')
     with tf.GradientTape() as tape:
         print('dentro il tape')
         loss = graph_cost(x)
-
+    print('i')
     sdg_losses.append(loss.numpy().flatten()[0])
 
     gradients = tape.gradient(loss, [x])
