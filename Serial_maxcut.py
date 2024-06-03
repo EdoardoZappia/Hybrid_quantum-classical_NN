@@ -80,9 +80,9 @@ def recurrent_loop(graph_cost, lstm_cell, n_layers=2, intermediate_steps=False, 
     loss = observed_improvement_loss(costs)
     if intermediate_steps:
         params = [output[1] for output in outputs]
-        return costs, params + [loss]
+        return params + [loss]
     else:
-        return costs, loss
+        return loss
 
 def InitializeParameters(n_layers):
     return tf.keras.layers.LSTMCell(2 * n_layers)
@@ -114,8 +114,7 @@ def TrainLSTM(graphs, learning_rate, batch_size, epoch, n_layers):
                 graph_cost = qaoa_maxcut_graph(graph, n_layers=n_layers)
                 initial_cost = tf.ones(shape=(1, 1))
                 with tf.GradientTape() as tape:
-                    final_cost = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers)
-                    loss = loss_impr(initial_cost, final_cost[-1])
+                    loss = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers) 
                 grads = Backward(tape, loss, lstm_cell)
                 update(opt, lstm_cell, grads, learning_rate, batch_size)
                 del tape  # Release tape memory
@@ -127,19 +126,20 @@ def create_test_graph(n_nodes=20):
     edge_prob = k / n_nodes
     return nx.erdos_renyi_graph(n_nodes, edge_prob)
 
-def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, output_filename="cost_function_plot.png"):
-    initial_cost = tf.ones(shape=(1, 1))
-    initial_params = tf.ones(shape=(1, 2 * n_layers))
-    initial_h = tf.ones(shape=(1, 2 * n_layers))
-    initial_c = tf.ones(shape=(1, 2 * n_layers))
+def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, output_filename="serial_NN_cost_function_plot.png"):
+    start_zeros = tf.zeros(shape=(2 * n_layers, 1))
+    res = recurrent_loop(new_cost, intermediate_steps=True)
+    # Inizializza le variabili per memorizzare i valori di guess
+    guess_list = []
+    guess_list.append(start_zeros)
 
-    costs = []
-    outputs = [hybrid_iteration([initial_cost, initial_params, initial_h, initial_c], graph_cost, lstm_cell_trained, n_layers)]
-    costs.append(outputs[0][0].numpy().flatten()[0])
-    
-    for _ in range(1, num_iterations):
-        outputs.append(hybrid_iteration(outputs[-1], graph_cost, lstm_cell_trained, n_layers))
-        costs.append(outputs[-1][0].numpy().flatten()[0])
+# Esegui 10 iterazioni
+    for i in range(10):
+        guess = res[i]  # Supponiamo che res abbia almeno 10 elementi
+        guess_list.append(guess)
+
+    # Losses from the hybrid LSTM model
+    lstm_losses = [new_cost(tf.reshape(guess, shape=(2, n_layers))) for guess in guess_list]
     
     plt.figure(figsize=(10, 6))
     plt.plot(costs, marker='o', linestyle='-', color='b')
@@ -150,11 +150,11 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
     plt.savefig(output_filename)
     plt.close()
 
-    return costs
+    return lstm_losses
 
 # Main script
 graphs = create_graph_train_dataset(12)
-learning_rate = 0.01
+learning_rate = 0.1
 batch_size = 2  # Reduce batch size to save memory
 epoch = 3  # Reduce epochs to save memory
 n_layers = 2
