@@ -19,7 +19,7 @@ def create_test_graph(n_nodes=20):
 def qaoa_maxcut_graph(graph, n_layers=2):
     """Compute the maximum cut of a graph using QAOA."""
     n_nodes = graph.number_of_nodes()
-    dev = qml.device("default.qubit.tf", wires=n_nodes)
+    dev = qml.device("default.qubit", wires=n_nodes)
     cost_h, mixer_h = qaoa.maxcut(graph)
 
     def qaoa_layer(gamma, alpha):
@@ -39,7 +39,7 @@ def qaoa_maxcut_graph(graph, n_layers=2):
     return qaoa_cost
 
 # Create a test graph
-test_graph = create_test_graph(20)
+test_graph = create_test_graph(10)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=2)
 print(f"Number of nodes: {test_graph.number_of_nodes()}")
 # Parameters are initialized to ones
@@ -53,7 +53,7 @@ step = 5
 sdg_losses = []
 for i in range(step):
     print('dentro il for')
-    with tf.GradientTape() as tape:
+    with tf.GradientTape(persistent=True) as tape:
         print('dentro il tape')
         loss = graph_cost(x)
     print('i')
@@ -61,7 +61,7 @@ for i in range(step):
 
     gradients = tape.gradient(loss, [x])
     opt.apply_gradients(zip(gradients, [x]))
-
+    del tape
     print(f"Step {i+1} - Loss = {loss.numpy().flatten()[0]}")
 
 # Print final results
@@ -77,4 +77,4 @@ plt.title('Cost Function Value During SGD Iterations')
 plt.grid(True)
 plt.legend()
 plt.savefig("cost_function_plot_sgd.png")
-plt.show()
+#plt.show()
