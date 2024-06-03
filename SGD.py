@@ -50,7 +50,7 @@ x = tf.Variable(np.random.rand(2, 2))
 
 # We set the optimizer to be a Stochastic Gradient Descent
 opt = tf.keras.optimizers.SGD(learning_rate=0.01)
-step = 5
+step = 10
 
 # Training process
 sdg_losses = []
@@ -59,7 +59,7 @@ for i in range(step):
     with tf.GradientTape(persistent=True) as tape:
         print('dentro il tape')
         loss = graph_cost(x)
-    print('i')
+    print(i)
     sdg_losses.append(loss.numpy().flatten()[0])
 
     gradients = tape.gradient(loss, [x])
