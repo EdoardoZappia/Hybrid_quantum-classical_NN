@@ -179,7 +179,7 @@ lstm_losses = test_model(lstm_cell_trained, graph_cost, n_layers=n_layers)
 print("Final cost for the test graph:", lstm_losses[-1])
 
 # Parameters are randomly initialized
-x = tf.Variable(np.random.rand(2, 2))
+x = tf.Variable(tf.ones(shape=(2, 2)))
 
 # We set the optimizer to be a Stochastic Gradient Descent
 opt = tf.keras.optimizers.SGD(learning_rate=0.1)

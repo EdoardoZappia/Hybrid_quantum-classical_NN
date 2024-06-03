@@ -49,7 +49,7 @@ print(f"Number of nodes: {test_graph.number_of_nodes()}")
 x = tf.Variable(np.random.rand(2, 2))
 
 # We set the optimizer to be a Stochastic Gradient Descent
-opt = tf.keras.optimizers.SGD(learning_rate=0.01)
+opt = tf.keras.optimizers.SGD(learning_rate=0.1)
 step = 10
 
 # Training process
@@ -60,15 +60,15 @@ for i in range(step):
         print('dentro il tape')
         loss = graph_cost(x)
     print(i)
-    sdg_losses.append(loss.numpy().flatten()[0])
+    sdg_losses.append(loss)
 
     gradients = tape.gradient(loss, [x])
     opt.apply_gradients(zip(gradients, [x]))
     del tape
-    print(f"Step {i+1} - Loss = {loss.numpy().flatten()[0]}")
+    print(f"Step {i+1} - Loss = {loss}")
 
 # Print final results
-print(f"Final cost function: {graph_cost(x).numpy().flatten()[0]}")
+print(f"Final cost function: {graph_cost(x)}")
 print(f"Optimized angles: {x.numpy()}")
 
 # Plot the results
