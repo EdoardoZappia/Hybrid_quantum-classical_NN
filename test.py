@@ -246,7 +246,9 @@ for i in range(step):
     del tape
     print(f"Step {i+1} - Loss = {loss.numpy().flatten()[0]}")
 
-print(f"Final cost function: {new_cost(x).numpy()}\nOptimized angles: {x.numpy()}")
+# Print final results
+print(f"Final cost function: {graph_cost(x).numpy().flatten()[0]}")
+print(f"Optimized angles: {x.numpy()}")
 
 fig, ax = plt.subplots()
 
