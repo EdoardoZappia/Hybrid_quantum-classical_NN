@@ -47,12 +47,12 @@ def qaoa_maxcut_graph(graph, n_layers=2):
         return circuit(params)
     return qaoa_cost
 
-def observed_improvement_loss(costs):
-    initial_cost = costs[0]
-    final_cost = costs[-1]
-    improvement = initial_cost - final_cost
-    loss = -improvement
-    return tf.reshape(loss, shape=(1, 1))
+#def observed_improvement_loss(costs):
+#    initial_cost = costs[0]
+#    final_cost = costs[-1]
+#    improvement = initial_cost - final_cost
+#    loss = -improvement
+#    return tf.reshape(loss, shape=(1, 1))
 
 def hybrid_iteration(inputs, graph_cost, lstm_cell, n_layers=2):
     prev_cost = inputs[0]
@@ -100,8 +100,13 @@ def getBatch(M, di):
 def Forward(params, graph_cost, lstm_cell, n_layers):
     return recurrent_loop(graph_cost, lstm_cell, n_layers=n_layers, intermediate_steps=False, num_iterations=10)
 
+#def loss_impr(initial_cost, final_cost):
+#    return observed_improvement_loss([initial_cost, final_cost])
+
 def loss_impr(initial_cost, final_cost):
-    return observed_improvement_loss([initial_cost, final_cost])
+    improvement = initial_cost - final_cost
+    loss = -improvement
+    return loss
 
 def Backward(tape, loss, lstm_cell):
     return tape.gradient(loss, lstm_cell.trainable_weights)
@@ -116,10 +121,9 @@ def ThreadCode(di, lstm_cell, learning_rate, batch_size, n_layers, opt):
             graph_cost = qaoa_maxcut_graph(graph, n_layers=n_layers)
             initial_cost = np.random.rand(1, 1)
             with tf.GradientTape() as tape:
-                final_cost = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers)
-                print('Final cost:', final_cost)
-                loss = loss_impr(final_cost[0], final_cost[-1])
-                #loss = observed_improvement_loss(final_cost)
+                final_costs, _ = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers)
+                final_cost = final_costs[-1]  # Use the last cost from the output
+                loss = loss_impr(initial_cost, final_cost)
             grads = Backward(tape, loss, lstm_cell)
             update(opt, lstm_cell, grads, learning_rate, batch_size)
             del tape  # Release tape memory 
