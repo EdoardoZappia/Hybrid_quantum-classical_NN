@@ -115,7 +115,7 @@ def TrainLSTM(graphs, learning_rate, batch_size, epoch, n_layers):
                 initial_cost = tf.ones(shape=(1, 1))
                 with tf.GradientTape() as tape:
                     final_cost = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers)
-                    loss = loss_impr(initial_cost, final_cost)
+                    loss = loss_impr(initial_cost, final_cost[-1])
                 grads = Backward(tape, loss, lstm_cell)
                 update(opt, lstm_cell, grads, learning_rate, batch_size)
                 del tape  # Release tape memory
@@ -201,5 +201,5 @@ plt.grid(ls="--", lw=2, alpha=0.25)
 plt.legend()
 plt.ylabel("Cost function", fontsize=12)
 plt.xlabel("Iteration", fontsize=12)
-plt.savefig("cost_function_plot.png")  # Save the final image
-plt.show()
+plt.savefig("serial_cost_function_plot.png")  # Save the final image
+#plt.show()
