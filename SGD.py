@@ -43,7 +43,8 @@ test_graph = create_test_graph(20)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=2)
 print(f"Number of nodes: {test_graph.number_of_nodes()}")
 # Parameters are initialized to ones
-x = tf.Variable(tf.ones(2, 2))
+params_shape = (n_layers, 2)
+x = tf.Variable(tf.ones(params_shape))
 
 # We set the optimizer to be a Stochastic Gradient Descent
 opt = tf.keras.optimizers.SGD(learning_rate=0.01)
@@ -53,7 +54,7 @@ step = 5
 sdg_losses = []
 for i in range(step):
     print('dentro il for')
-    with tf.GradientTape(persistent=True) as tape:
+    with tf.GradientTape() as tape:
         print('dentro il tape')
         loss = graph_cost(x)
     print('i')
@@ -61,7 +62,6 @@ for i in range(step):
 
     gradients = tape.gradient(loss, [x])
     opt.apply_gradients(zip(gradients, [x]))
-    del tape
     print(f"Step {i+1} - Loss = {loss.numpy().flatten()[0]}")
 
 # Print final results
