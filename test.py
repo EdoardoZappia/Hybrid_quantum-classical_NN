@@ -186,16 +186,16 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
         outputs.append(hybrid_iteration(outputs[-1], graph_cost, lstm_cell_trained, n_layers))
         costs.append(outputs[-1][0].numpy().flatten()[0])
     
-    plt.figure(figsize=(10, 6))
-    plt.plot(costs, marker='o', linestyle='-', color='b')
-    plt.xlabel('Iteration')
-    plt.ylabel('Cost Function Value')
-    plt.title('Cost Function Value During Iterations')
-    plt.grid(True)
-    plt.savefig(output_filename)
-    plt.close()
+    #plt.figure(figsize=(10, 6))
+    #plt.plot(costs, marker='o', linestyle='-', color='b')
+    #plt.xlabel('Iteration')
+    #plt.ylabel('Cost Function Value')
+    #plt.title('Cost Function Value During Iterations')
+    #plt.grid(True)
+    #plt.savefig(output_filename)
+    #plt.close()
 
-    return costs[-1]
+    return costs
 
 graphs = create_graph_train_dataset(12)
 learning_rate = 0.01
@@ -215,7 +215,7 @@ print('1')
 #
 
 # Eseguiamo il test del modello
-final_cost = test_model(lstm_cell_trained, graph_cost, n_layers=n_layers)
+lstm_losses = test_model(lstm_cell_trained, graph_cost, n_layers=n_layers)
 
 # Stampa il costo finale ottenuto dal modello
 print("Final cost for the test graph:", final_cost)
