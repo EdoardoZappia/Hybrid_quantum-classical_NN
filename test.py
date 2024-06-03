@@ -116,8 +116,9 @@ def ThreadCode(di, lstm_cell, learning_rate, batch_size, n_layers, opt):
             graph_cost = qaoa_maxcut_graph(graph, n_layers=n_layers)
             initial_cost = np.random.rand(1, 1)
             with tf.GradientTape() as tape:
-                final_cost[-1] = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers)
-                loss = loss_impr(initial_cost, final_cost)
+                final_cost = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers)
+                print('Final cost:', final_cost)
+                loss = loss_impr(initial_cost, final_cost[-1])
             grads = Backward(tape, loss, lstm_cell)
             update(opt, lstm_cell, grads, learning_rate, batch_size)
             del tape  # Release tape memory 
