@@ -159,7 +159,7 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
 # Main script
 graphs = create_graph_train_dataset(20)
 learning_rate = 0.01
-batch_size = 2  # Reduce batch size to save memory
+batch_size = 20  # Reduce batch size to save memory
 epoch = 10  # Reduce epochs to save memory
 n_thread = 2  # Reduce threads to save memory
 n_layers = 2
