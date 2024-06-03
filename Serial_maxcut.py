@@ -109,15 +109,16 @@ def TrainLSTM(graphs, learning_rate, batch_size, epoch, n_layers):
     lstm_cell = InitializeParameters(n_layers)
     opt = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     for e in range(epoch):
-        for graph_batch in iterate_minibatches(graphs, batch_size, shuffle=True):
-            for graph in graph_batch:
-                graph_cost = qaoa_maxcut_graph(graph, n_layers=n_layers)
-                initial_cost = tf.ones(shape=(1, 1))
-                with tf.GradientTape() as tape:
-                    loss = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers) 
-                grads = Backward(tape, loss, lstm_cell)
-                update(opt, lstm_cell, grads, learning_rate, batch_size)
-                del tape  # Release tape memory
+        #for graph_batch in iterate_minibatches(graphs, batch_size, shuffle=True):
+            #for graph in graph_batch:
+        for graph in graphs:
+            graph_cost = qaoa_maxcut_graph(graph, n_layers=n_layers)
+            initial_cost = tf.ones(shape=(1, 1))
+            with tf.GradientTape() as tape:
+                loss = Forward(initial_cost, graph_cost, lstm_cell, n_layers=n_layers) 
+            grads = Backward(tape, loss, lstm_cell)
+            update(opt, lstm_cell, grads, learning_rate, batch_size)
+            del tape  # Release tape memory
         tf.keras.backend.clear_session()  # Clear session to free memory
     return lstm_cell
 
@@ -155,7 +156,7 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
 # Main script
 graphs = create_graph_train_dataset(12)
 learning_rate = 0.1
-batch_size = 2  # Reduce batch size to save memory
+batch_size = 12  # Reduce batch size to save memory
 epoch = 3  # Reduce epochs to save memory
 n_layers = 2
 
@@ -183,11 +184,11 @@ sdg_losses = []
 for i in range(step):
     with tf.GradientTape() as tape:
         loss = graph_cost(x)
-    sdg_losses.append(loss.numpy().flatten()[0])
+    sdg_losses.append(loss)
     gradients = tape.gradient(loss, [x])
     opt.apply_gradients(zip(gradients, [x]))
     del tape  # Release tape memory
-    print(f"Step {i+1} - Loss = {loss.numpy().flatten()[0]}")
+    print(f"Step {i+1} - Loss = {loss}")
 
 # Print final results
 print(f"Final cost function: {graph_cost(x).numpy().flatten()[0]}")
