@@ -218,7 +218,7 @@ print('1')
 lstm_losses = test_model(lstm_cell_trained, graph_cost, n_layers=n_layers)
 
 # Stampa il costo finale ottenuto dal modello
-print("Final cost for the test graph:", final_cost)
+print("Final cost for the test graph:", lstm_losses[-1])
 
 # Parameters are randomly initialized
 x = tf.Variable(np.random.rand(2, 2))
