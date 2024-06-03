@@ -37,15 +37,15 @@ def iterate_minibatches(inputs, batchsize, shuffle=False):
         excerpt = indices[start_idx:start_idx + batchsize]
         yield [inputs[i] for i in excerpt]
 
-def create_graph_test_dataset(num_graphs):
-    dataset = []
-    n_nodes = 12
-    for _ in range(num_graphs):
-        k = random.randint(3, n_nodes-1)
-        edge_prob = k / n_nodes
-        G = nx.erdos_renyi_graph(n_nodes, edge_prob)
-        dataset.append(G)
-    return dataset
+#def create_graph_test_dataset(num_graphs):
+#    dataset = []
+#    n_nodes = 12
+#    for _ in range(num_graphs):
+#        k = random.randint(3, n_nodes-1)
+#        edge_prob = k / n_nodes
+#        G = nx.erdos_renyi_graph(n_nodes, edge_prob)
+#        dataset.append(G)
+#    return dataset
 
 def qaoa_maxcut_graph(graph, n_layers=2):
     """Compute the maximum cut of a graph using QAOA."""
@@ -206,8 +206,8 @@ n_layers = 2
 
 lstm_cell_trained = TrainLSTM(graphs, learning_rate, batch_size, epoch, n_thread, n_layers)
 
-# Creiamo un grafico di test con 20 nodi
-test_graph = create_test_graph(20)
+# Creiamo un grafico di test con 15 nodi
+test_graph = create_test_graph(15)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=n_layers)
 
 #DEBUG
@@ -221,29 +221,30 @@ final_cost = test_model(lstm_cell_trained, graph_cost, n_layers=n_layers)
 print("Final cost for the test graph:", final_cost)
 
 # Parameters are randomly initialized
-x = tf.Variable(tf.ones((2, 2)))
+x = tf.Variable(np.random.rand(2, 2))
 
 # We set the optimizer to be a Stochastic Gradient Descent
 opt = tf.keras.optimizers.SGD(learning_rate=0.01)
-step = 15
+step = 10
 
 #DEBUG
 print('SGD')
 #
 
 # Training process
-steps = []
 sdg_losses = []
-for _ in range(step):
-    with tf.GradientTape() as tape:
+for i in range(step):
+    print('dentro il for')
+    with tf.GradientTape(persistent=True) as tape:
+        print('dentro il tape')
         loss = graph_cost(x)
-
-    steps.append(x)
-    sdg_losses.append(loss)
+    print(i)
+    sdg_losses.append(loss.numpy().flatten()[0])
 
     gradients = tape.gradient(loss, [x])
     opt.apply_gradients(zip(gradients, [x]))
-    print(f"Step {_+1} - Loss = {loss}")
+    del tape
+    print(f"Step {i+1} - Loss = {loss.numpy().flatten()[0]}")
 
 print(f"Final cost function: {new_cost(x).numpy()}\nOptimized angles: {x.numpy()}")
 
