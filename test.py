@@ -161,26 +161,36 @@ def create_test_graph(n_nodes=20):
     edge_prob = k / n_nodes
     return nx.erdos_renyi_graph(n_nodes, edge_prob)
 
-def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, output_filename="cost_function_plot.png"):
-    initial_cost = tf.ones(shape=(1, 1))
-    initial_params = tf.ones(shape=(1, 2 * n_layers))
-    initial_h = tf.ones(shape=(1, 2 * n_layers))
-    initial_c = tf.ones(shape=(1, 2 * n_layers))
+def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10):
+    # Apply the RNN (be sure that training was performed)
+    res = recurrent_loop(graph_cost, intermediate_steps=True)
 
-    costs = []
-    outputs = [hybrid_iteration([initial_cost, initial_params, initial_h, initial_c], graph_cost, lstm_cell_trained, n_layers)]
-    costs.append(outputs[0][0].numpy().flatten()[0])
-    
-    for _ in range(1, num_iterations):
-        outputs.append(hybrid_iteration(outputs[-1], graph_cost, lstm_cell_trained, n_layers))
-        costs.append(outputs[-1][0].numpy().flatten()[0])
+    # Extract all angle suggestions
+    guess_0 = res[0]
+    guess_1 = res[1]
+    guess_2 = res[2]
+    guess_3 = res[3]
+    guess_4 = res[4]
+    final_loss = res[5]
 
-    return costs
+    # Wrap them into a list
+    guesses = [tf.zeros(shape=(2 * n_layers, 1)), guess_0, guess_1, guess_2, guess_3, guess_4]
+
+    # Losses from the hybrid LSTM model
+    lstm_losses = [graph_cost(tf.reshape(guess, shape=(2, n_layers))) for guess in guesses]
+
+    return lstm_losses
+
+# Wrap them into a list
+guesses = [start_zeros, guess_0, guess_1, guess_2, guess_3, guess_4]
+
+# Losses from the hybrid LSTM model
+lstm_losses = [new_cost(tf.reshape(guess, shape=(2, n_layers))) for guess in guesses]
 
 # Main script
-graphs = create_graph_train_dataset(100)
+graphs = create_graph_train_dataset(12)
 learning_rate = 0.1
-batch_size = 10  # Reduce batch size to save memory
+batch_size = 4  # Reduce batch size to save memory
 epoch = 10  # Reduce epochs to save memory
 n_thread = 2  # Reduce threads to save memory
 n_layers = 2
