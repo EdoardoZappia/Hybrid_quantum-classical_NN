@@ -139,7 +139,7 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
         guess_list.append(guess)
 
     # Losses from the hybrid LSTM model
-    lstm_losses = [new_cost(tf.reshape(guess, shape=(2, n_layers))) for guess in guess_list]
+    lstm_losses = [graph_cost(tf.reshape(guess, shape=(2, n_layers))) for guess in guess_list]
     
     plt.figure(figsize=(10, 6))
     plt.plot(costs, marker='o', linestyle='-', color='b')
