@@ -126,8 +126,11 @@ def create_test_graph(n_nodes=20):
     k = random.randint(3, n_nodes-1)
     edge_prob = k / n_nodes
     new_graph = nx.gnp_random_graph(n_nodes, edge_prob)
-    nx.draw(new_graph)
+    plt.figure(figsize=(8, 6))
+    nx.draw(new_graph, with_labels=True, node_color='skyblue', node_size=700, edge_color='gray')
+    plt.title("Test Graph")
     plt.savefig("test_graph.png")
+    plt.close()
     return new_graph
 
 def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, output_filename="serial_NN_cost_function_plot.png"):
@@ -157,10 +160,10 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
     return lstm_losses
 
 # Main script
-graphs = create_graph_train_dataset(12)
+graphs = create_graph_train_dataset(20)
 learning_rate = 0.1
-batch_size = 12  # Reduce batch size to save memory
-epoch = 3  # Reduce epochs to save memory
+batch_size = 20  # Reduce batch size to save memory
+epoch = 10  # Reduce epochs to save memory
 n_layers = 2
 
 lstm_cell_trained = TrainLSTM(graphs, learning_rate, batch_size, epoch, n_layers)
