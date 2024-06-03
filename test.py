@@ -47,12 +47,12 @@ def qaoa_maxcut_graph(graph, n_layers=2):
         return circuit(params)
     return qaoa_cost
 
-#def observed_improvement_loss(costs):
-#    initial_cost = costs[0]
-#    final_cost = costs[-1]
-#    improvement = initial_cost - final_cost
-#    loss = -improvement
-#    return tf.reshape(loss, shape=(1, 1))
+def observed_improvement_loss(costs):
+    initial_cost = costs[0]
+    final_cost = costs[-1]
+    improvement = initial_cost - final_cost
+    loss = -improvement
+    return tf.reshape(loss, shape=(1, 1))
 
 def hybrid_iteration(inputs, graph_cost, lstm_cell, n_layers=2):
     prev_cost = inputs[0]
@@ -100,13 +100,8 @@ def getBatch(M, di):
 def Forward(params, graph_cost, lstm_cell, n_layers):
     return recurrent_loop(graph_cost, lstm_cell, n_layers=n_layers, intermediate_steps=False, num_iterations=10)
 
-#def loss_impr(initial_cost, final_cost):
-#    return observed_improvement_loss([initial_cost, final_cost])
-
 def loss_impr(initial_cost, final_cost):
-    improvement = initial_cost - final_cost
-    loss = -improvement
-    return loss
+    return observed_improvement_loss([initial_cost, final_cost])
 
 def Backward(tape, loss, lstm_cell):
     return tape.gradient(loss, lstm_cell.trainable_weights)
@@ -172,7 +167,7 @@ n_layers = 2
 lstm_cell_trained = TrainLSTM(graphs, learning_rate, batch_size, epoch, n_thread, n_layers)
 
 # Creiamo un grafico di test con 10 nodi per ridurre la memoria
-test_graph = create_test_graph(10)
+test_graph = create_test_graph(15)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=n_layers)
 
 # Eseguiamo il test del modello
