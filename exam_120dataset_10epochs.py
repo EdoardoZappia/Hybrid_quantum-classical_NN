@@ -130,6 +130,10 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
 
     # Extract the costs from the outputs
     costs = [output[0] for output in outputs]
+
+    #DEBUG
+    print("Intermediary costs:", [cost.numpy() for cost in costs])
+    #DEBUG
     
     # Calculate the observed improvement loss
     loss = observed_improvement_loss(costs)
@@ -155,44 +159,10 @@ def train_step(graph_cost):
     opt.apply_gradients(zip(grads, cell.trainable_weights))
     return loss
 
-
-
 n_layers = 2
 cell = tf.keras.layers.LSTMCell(2 * n_layers)
 
-new_graph = nx.gnp_random_graph(12, p=3 / 7)
-new_cost = qaoa_maxcut_graph(new_graph)
-
-plt.figure(figsize=(8, 8))
-nx.draw(new_graph)
-plt.savefig("test_graph.png")
-
-# Parameters are randomly initialized
-x = tf.Variable(tf.zeros(shape=(2, 2)))
-
-# We set the optimizer to be a Stochastic Gradient Descent
-opt = tf.keras.optimizers.SGD(learning_rate=0.01)
-step = 10
-
-# Training process
-steps = []
-sdg_losses = []  # Initialize list for SGD losses here
-for _ in range(step):
-    with tf.GradientTape() as tape:
-        loss = new_cost(x)
-
-    steps.append(x)
-    sdg_losses.append(loss.numpy())  # Append the loss to the list
-
-    gradients = tape.gradient(loss, [x])
-    opt.apply_gradients(zip(gradients, [x]))
-    print(f"Step {_+1} - Loss = {loss}")
-
-print(f"Final cost function: {new_cost(x).numpy()}\nOptimized angles: {x.numpy()}")
-
-
-
-graphs = create_graph_train_dataset(20)
+graphs = create_graph_train_dataset(120)
 #This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 
@@ -214,7 +184,12 @@ for epoch in range(epochs):
         total_loss = np.append(total_loss, loss.numpy())
         print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
+new_graph = nx.gnp_random_graph(12, p=3 / 7)
+new_cost = qaoa_maxcut_graph(new_graph)
 
+plt.figure(figsize=(8, 8))
+nx.draw(new_graph)
+plt.savefig("test_graph_120dataset_10epochs.png")
 
 start_zeros = tf.zeros(shape=(2 * n_layers, 1))
 res = recurrent_loop(new_cost, intermediate_steps=True)
@@ -241,6 +216,28 @@ plt.legend()
 ax.set_xticks([0, 5, 10, 15, 20])
 plt.show()
 
+# Parameters are randomly initialized
+x = tf.Variable(tf.zeros(shape=(2, 2)))
+
+# We set the optimizer to be a Stochastic Gradient Descent
+opt = tf.keras.optimizers.SGD(learning_rate=0.01)
+step = 10
+
+# Training process
+steps = []
+sdg_losses = []
+for _ in range(step):
+    with tf.GradientTape() as tape:
+        loss = new_cost(x)
+
+    steps.append(x)
+    sdg_losses.append(loss)
+
+    gradients = tape.gradient(loss, [x])
+    opt.apply_gradients(zip(gradients, [x]))
+    print(f"Step {_+1} - Loss = {loss}")
+
+print(f"Final cost function: {new_cost(x).numpy()}\nOptimized angles: {x.numpy()}")
 
 fig, ax = plt.subplots()
 
@@ -253,5 +250,5 @@ plt.legend()
 plt.ylabel("Cost function", fontsize=12)
 plt.xlabel("Iteration", fontsize=12)
 ax.set_xticks([0, 5, 10, 15, 20])
-plt.savefig("SGD_first_20dataset_10epochs.png")
+plt.savefig("120dataset_10epochs.png")
 plt.show()
