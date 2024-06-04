@@ -54,6 +54,9 @@ def observed_improvement_loss(costs):
 def hybrid_iteration(inputs, graph_cost, n_layers=2):
     prev_cost, prev_params, prev_h, prev_c = inputs
     new_input = tf.concat([prev_cost, prev_params], axis=-1)
+    # RIGA MODIFICATA
+    new_input = tf.reshape(new_input, shape=(1, -1))  # Reshape the new_input tensor to ensure it has the correct shape
+    #
     new_params, [new_h, new_c] = cell(new_input, states=[prev_h, prev_c])
     _params = tf.reshape(new_params, shape=(2, n_layers))
     _cost = graph_cost(_params)
