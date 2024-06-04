@@ -218,7 +218,7 @@ ax.set_xticks([0, 5, 10, 15, 20])
 plt.show()
 
 # Parameters are randomly initialized
-x = tf.Variable(np.random.rand(2, 2))
+x = tf.Variable(tf.zeros(shape=(2, 2)))
 
 # We set the optimizer to be a Stochastic Gradient Descent
 opt = tf.keras.optimizers.SGD(learning_rate=0.01)
