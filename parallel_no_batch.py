@@ -187,17 +187,17 @@ batch_size = 40
 
 for epoch in range(epochs):
     print(f"Epoch {epoch+1}")
-    for graph_cost in graph_cost_list:
-        total_loss = np.array([])
+    #for graph_cost in graph_cost_list:
+    total_loss = np.array([])
         # Parallelizzazione dei train_step con ThreadPoolExecutor
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = [executor.submit(train_step, graph_cost) for graph_cost in batch]
-            for i, future in enumerate(concurrent.futures.as_completed(futures)):
-                loss = future.result()
-                total_loss = np.append(total_loss, loss.numpy())
-                print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(train_step, graph_cost) for graph_cost in graph_cost_list]
+        for i, future in enumerate(concurrent.futures.as_completed(futures)):
+            loss = future.result()
+            total_loss = np.append(total_loss, loss.numpy())
+            print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
                 
-        print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
+    print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
 
 new_graph = nx.gnp_random_graph(12, p=3 / 7)
@@ -267,3 +267,6 @@ plt.xlabel("Iteration", fontsize=12)
 ax.set_xticks([0, 5, 10, 15, 20])
 plt.savefig("parallel_no_batch_20.png")
 plt.show()
+
+
+
