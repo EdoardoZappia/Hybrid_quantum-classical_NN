@@ -29,6 +29,14 @@ def create_graph_train_dataset(num_graphs):
         dataset.append(G)
     return dataset
 
+def iterate_minibatches(inputs, batchsize, shuffle=False):
+    indices = np.arange(len(inputs))
+    if shuffle:
+        np.random.shuffle(indices)
+    for start_idx in range(0, len(inputs) - batchsize + 1, batchsize):
+        excerpt = indices[start_idx:start_idx + batchsize]
+        yield [inputs[i] for i in excerpt]
+
 def qaoa_maxcut_graph(graph, n_layers=2):
     """Compute the maximum cut of a graph using QAOA."""
     # Number of nodes in the graph
