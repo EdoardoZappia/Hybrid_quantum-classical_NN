@@ -183,13 +183,13 @@ batch_size = 10
 
 for epoch in range(epochs):
     print(f"Epoch {epoch+1}")
-    for batch in iterate_minibatches(graph_cost_list, batch_size, shuffle=True):
-    #for graph_cost in graph_cost_list:
+    #for batch in iterate_minibatches(graph_cost_list, batch_size, shuffle=True):
+    for graph_cost in graph_cost_list:
         total_loss = np.array([])
-        batch_graphs = batch
-        for i, graph_cost in enumerate(batch_graphs):
-            loss = train_step(graph_cost)
-            total_loss = np.append(total_loss, loss.numpy())
+        #batch_graphs = batch
+        #for i, graph_cost in enumerate(batch_graphs):
+        loss = train_step(graph_cost)
+        total_loss = np.append(total_loss, loss.numpy())
         # Log every 5 batches.
         #if i % 5 == 0:
         print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
