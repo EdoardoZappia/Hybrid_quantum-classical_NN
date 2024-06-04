@@ -159,10 +159,44 @@ def train_step(graph_cost):
     opt.apply_gradients(zip(grads, cell.trainable_weights))
     return loss
 
+
+
 n_layers = 2
 cell = tf.keras.layers.LSTMCell(2 * n_layers)
 
-graphs = create_graph_train_dataset(120)
+new_graph = nx.gnp_random_graph(12, p=3 / 7)
+new_cost = qaoa_maxcut_graph(new_graph)
+
+pl.figure(figsize=(8, 8))
+nx.draw(new_graph)
+plt.savefig("test_graph.png")
+
+# Parameters are randomly initialized
+x = tf.Variable(tf.zeros(shape=(2, 2)))
+
+# We set the optimizer to be a Stochastic Gradient Descent
+opt = tf.keras.optimizers.SGD(learning_rate=0.01)
+step = 10
+
+# Training process
+steps = []
+sdg_losses = []
+for _ in range(step):
+    with tf.GradientTape() as tape:
+        loss = new_cost(x)
+
+    steps.append(x)
+    sdg_losses.append(loss)
+
+    gradients = tape.gradient(loss, [x])
+    opt.apply_gradients(zip(gradients, [x]))
+    print(f"Step {_+1} - Loss = {loss}")
+
+print(f"Final cost function: {new_cost(x).numpy()}\nOptimized angles: {x.numpy()}")
+
+
+
+graphs = create_graph_train_dataset(20)
 #This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 
@@ -174,7 +208,7 @@ graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 opt = tf.keras.optimizers.Adam(learning_rate=0.1)
 
 # Set the number of training epochs
-epochs = 5
+epochs = 10
 batch_size = 40
 
 for epoch in range(epochs):
@@ -185,12 +219,7 @@ for epoch in range(epochs):
         total_loss = np.append(total_loss, loss.numpy())
         print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
-new_graph = nx.gnp_random_graph(12, p=3 / 7)
-new_cost = qaoa_maxcut_graph(new_graph)
 
-plt.figure(figsize=(8, 8))
-nx.draw(new_graph)
-plt.savefig("test_graph.png")
 
 start_zeros = tf.zeros(shape=(2 * n_layers, 1))
 res = recurrent_loop(new_cost, intermediate_steps=True)
@@ -217,28 +246,6 @@ plt.legend()
 ax.set_xticks([0, 5, 10, 15, 20])
 plt.show()
 
-# Parameters are randomly initialized
-x = tf.Variable(tf.zeros(shape=(2, 2)))
-
-# We set the optimizer to be a Stochastic Gradient Descent
-opt = tf.keras.optimizers.SGD(learning_rate=0.01)
-step = 10
-
-# Training process
-steps = []
-sdg_losses = []
-for _ in range(step):
-    with tf.GradientTape() as tape:
-        loss = new_cost(x)
-
-    steps.append(x)
-    sdg_losses.append(loss)
-
-    gradients = tape.gradient(loss, [x])
-    opt.apply_gradients(zip(gradients, [x]))
-    print(f"Step {_+1} - Loss = {loss}")
-
-print(f"Final cost function: {new_cost(x).numpy()}\nOptimized angles: {x.numpy()}")
 
 fig, ax = plt.subplots()
 
@@ -251,5 +258,5 @@ plt.legend()
 plt.ylabel("Cost function", fontsize=12)
 plt.xlabel("Iteration", fontsize=12)
 ax.set_xticks([0, 5, 10, 15, 20])
-plt.savefig("lstm_vs_sgd_exam_120_12.png")
+plt.savefig("SGD_first_20dataset_10epochs.png")
 plt.show()
