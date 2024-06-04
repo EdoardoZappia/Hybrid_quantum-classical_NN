@@ -192,7 +192,7 @@ for epoch in range(epochs):
         total_loss = np.append(total_loss, loss.numpy())
         # Log every 5 batches.
         #if i % 5 == 0:
-        print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
+        #print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
         print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
 new_graph = nx.gnp_random_graph(12, p=3 / 7)
