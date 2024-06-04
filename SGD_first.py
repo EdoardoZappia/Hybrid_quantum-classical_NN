@@ -130,10 +130,6 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
 
     # Extract the costs from the outputs
     costs = [output[0] for output in outputs]
-
-    #DEBUG
-    print("Intermediary costs:", [cost.numpy() for cost in costs])
-    #DEBUG
     
     # Calculate the observed improvement loss
     loss = observed_improvement_loss(costs)
@@ -180,13 +176,13 @@ step = 10
 
 # Training process
 steps = []
-sdg_losses = []
+sdg_losses = []  # Initialize list for SGD losses here
 for _ in range(step):
     with tf.GradientTape() as tape:
         loss = new_cost(x)
 
     steps.append(x)
-    sdg_losses.append(loss)
+    sdg_losses.append(loss.numpy())  # Append the loss to the list
 
     gradients = tape.gradient(loss, [x])
     opt.apply_gradients(zip(gradients, [x]))
