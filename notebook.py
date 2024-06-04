@@ -166,7 +166,7 @@ def train_step(graph_cost):
 n_layers = 2
 cell = tf.keras.layers.LSTMCell(2 * n_layers)
 
-graphs = create_graph_train_dataset(20)
+graphs = create_graph_train_dataset(18)
 #This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 
