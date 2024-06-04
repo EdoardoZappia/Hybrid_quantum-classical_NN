@@ -166,7 +166,7 @@ def train_step(graph_cost):
 n_layers = 2
 cell = tf.keras.layers.LSTMCell(2 * n_layers)
 
-graphs = create_graph_train_dataset(18)
+graphs = create_graph_train_dataset(20)
 #This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 
@@ -194,7 +194,7 @@ for epoch in range(epochs):
             print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
         print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
-new_graph = nx.gnp_random_graph(20, p=3 / 7)
+new_graph = nx.gnp_random_graph(15, p=3 / 7)
 new_cost = qaoa_maxcut_graph(new_graph)
 
 nx.draw(new_graph)
