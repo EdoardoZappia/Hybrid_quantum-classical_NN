@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 import random
 
 # Fix the seed for reproducibility, which affects all random functions in this demo
-random.seed(42)
-np.random.seed(42)
-tf.random.set_seed(42)
+random.seed(12)
+np.random.seed(12)
+tf.random.set_seed(12)
 
 def create_graph_train_dataset(num_graphs):
     dataset = []
@@ -160,7 +160,7 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
     return lstm_losses
 
 # Main script
-graphs = create_graph_train_dataset(20)
+graphs = create_graph_train_dataset(40)
 learning_rate = 0.1
 batch_size = 20  # Reduce batch size to save memory
 epoch = 10  # Reduce epochs to save memory
