@@ -110,9 +110,7 @@ epochs = 10
 for epoch in range(epochs):
     print(f"Epoch {epoch+1}")
     for graph_cost in graph_cost_list:
-
         total_loss = np.array([])
-        batch_graphs = batch
         for i, graph_cost in enumerate(batch_graphs):
             loss = train_step(graph_cost)
             total_loss = np.append(total_loss, loss.numpy())
