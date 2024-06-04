@@ -145,6 +145,10 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
     else:
         return loss
 
+def adjust_learning_rate(optimizer, batch_size, base_lr=0.1, scale_factor=0.1):
+    new_lr = base_lr * scale_factor ** (batch_size / 256)
+    optimizer.learning_rate.assign(new_lr)
+
 def train_step(graph_cost):
     """Single optimization step in the training procedure."""
 
@@ -166,7 +170,7 @@ def train_step(graph_cost):
 n_layers = 2
 cell = tf.keras.layers.LSTMCell(2 * n_layers)
 
-graphs = create_graph_train_dataset(40)
+graphs = create_graph_train_dataset(120)
 #This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 
@@ -178,21 +182,23 @@ graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 opt = tf.keras.optimizers.Adam(learning_rate=0.1)
 
 # Set the number of training epochs
-epochs = 10
-batch_size = 10
+epochs = 5
+batch_size = 40
 
 for epoch in range(epochs):
     print(f"Epoch {epoch+1}")
-    #for batch in iterate_minibatches(graph_cost_list, batch_size, shuffle=True):
-    for graph_cost in graph_cost_list:
+    for batch in iterate_minibatches(graph_cost_list, batch_size, shuffle=True):
+        adjust_learning_rate(opt, batch_size)
+    #for graph_cost in graph_cost_list:
+
         total_loss = np.array([])
-        #batch_graphs = batch
-        #for i, graph_cost in enumerate(batch_graphs):
-        loss = train_step(graph_cost)
-        total_loss = np.append(total_loss, loss.numpy())
+        batch_graphs = batch
+        for i, graph_cost in enumerate(batch_graphs):
+            loss = train_step(graph_cost)
+            total_loss = np.append(total_loss, loss.numpy())
         # Log every 5 batches.
         #if i % 5 == 0:
-        #print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
+        print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
         print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
 new_graph = nx.gnp_random_graph(12, p=3 / 7)

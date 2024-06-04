@@ -162,14 +162,14 @@ def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, out
 # Main script
 graphs = create_graph_train_dataset(40)
 learning_rate = 0.1
-batch_size = 20  # Reduce batch size to save memory
-epoch = 10  # Reduce epochs to save memory
+batch_size = 20  
+epoch = 10  
 n_layers = 2
 
 lstm_cell_trained = TrainLSTM(graphs, learning_rate, batch_size, epoch, n_layers)
 
-# Creiamo un grafico di test con 10 nodi per ridurre la memoria
-test_graph = create_test_graph(15)
+# Creiamo un grafico di test con 15 nodi per ridurre la memoria
+test_graph = create_test_graph(12)
 graph_cost = qaoa_maxcut_graph(test_graph, n_layers=n_layers)
 
 # Eseguiamo il test del modello
