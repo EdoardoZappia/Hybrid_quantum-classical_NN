@@ -167,7 +167,7 @@ cell = tf.keras.layers.LSTMCell(2 * n_layers)
 new_graph = nx.gnp_random_graph(12, p=3 / 7)
 new_cost = qaoa_maxcut_graph(new_graph)
 
-pl.figure(figsize=(8, 8))
+plt.figure(figsize=(8, 8))
 nx.draw(new_graph)
 plt.savefig("test_graph.png")
 
