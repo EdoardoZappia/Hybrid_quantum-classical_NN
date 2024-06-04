@@ -116,10 +116,10 @@ def hybrid_iteration(inputs, graph_cost, n_layers=2):
 def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterations=10):
     """Creates the recurrent loop for the Recurrent Neural Network."""
     # Initialize starting all inputs (cost, parameters, hidden states) as zeros.
-    initial_cost = tf.ones(shape=(1, 1))
-    initial_params = tf.ones(shape=(1, 2 * n_layers))
-    initial_h = tf.ones(shape=(1, 2 * n_layers))
-    initial_c = tf.ones(shape=(1, 2 * n_layers))
+    initial_cost = tf.zeros(shape=(1, 1))
+    initial_params = tf.zeros(shape=(1, 2 * n_layers))
+    initial_h = tf.zeros(shape=(1, 2 * n_layers))
+    initial_c = tf.zeros(shape=(1, 2 * n_layers))
 
     # Initialize the output list with the initial state
     outputs = [hybrid_iteration([initial_cost, initial_params, initial_h, initial_c], graph_cost, n_layers)]
@@ -166,7 +166,7 @@ def train_step(graph_cost):
 n_layers = 2
 cell = tf.keras.layers.LSTMCell(2 * n_layers)
 
-graphs = create_graph_train_dataset(20)
+graphs = create_graph_train_dataset(40)
 #This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 
@@ -179,11 +179,12 @@ opt = tf.keras.optimizers.Adam(learning_rate=0.1)
 
 # Set the number of training epochs
 epochs = 10
-batch_size = 4
+batch_size = 10
 
 for epoch in range(epochs):
     print(f"Epoch {epoch+1}")
     for batch in iterate_minibatches(graph_cost_list, batch_size, shuffle=True):
+    #for graph_cost in graph_cost_list:
         total_loss = np.array([])
         batch_graphs = batch
         for i, graph_cost in enumerate(batch_graphs):
@@ -191,7 +192,7 @@ for epoch in range(epochs):
             total_loss = np.append(total_loss, loss.numpy())
         # Log every 5 batches.
         #if i % 5 == 0:
-            print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
+        print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
         print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
 new_graph = nx.gnp_random_graph(12, p=3 / 7)
