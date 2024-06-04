@@ -51,16 +51,28 @@ def observed_improvement_loss(costs):
     loss = -improvement
     return tf.reshape(loss, shape=(1, 1))
 
+def build_lstm_model(n_layers=2):
+    model = tf.keras.Sequential([
+        tf.keras.layers.Input(shape=(2 * n_layers + 1,)),
+        tf.keras.layers.Reshape((1, 2 * n_layers + 1)),
+        tf.keras.layers.LSTM(2 * n_layers, return_sequences=True, stateful=False),
+        tf.keras.layers.Reshape((2 * n_layers,))
+    ])
+    return model
+
+lstm_model = build_lstm_model(n_layers=2)
+
 def hybrid_iteration(inputs, graph_cost, n_layers=2):
     prev_cost, prev_params, prev_h, prev_c = inputs
     new_input = tf.concat([prev_cost, prev_params], axis=-1)
-    # RIGA MODIFICATA
     new_input = tf.reshape(new_input, shape=(1, -1))  # Reshape the new_input tensor to ensure it has the correct shape
-    #
-    new_params, [new_h, new_c] = cell(new_input, states=[prev_h, prev_c])
+    new_input = tf.cast(new_input, tf.float32)  # Ensure new_input is of type float32
+    states = [tf.cast(prev_h, tf.float32), tf.cast(prev_c, tf.float32)]  # Ensure states are of type float32
+    new_params = lstm_model(new_input)
     _params = tf.reshape(new_params, shape=(2, n_layers))
     _cost = graph_cost(_params)
     new_cost = tf.reshape(tf.cast(_cost, dtype=tf.float32), shape=(1, 1))
+    new_h, new_c = tf.split(new_params, 2, axis=-1)
     return [new_cost, new_params, new_h, new_c]
 
 def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterations=10):
@@ -85,12 +97,11 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
 def train_step(graph_cost):
     with tf.GradientTape() as tape:
         loss = recurrent_loop(graph_cost)
-    grads = tape.gradient(loss, cell.trainable_weights)
-    opt.apply_gradients(zip(grads, cell.trainable_weights))
+    grads = tape.gradient(loss, lstm_model.trainable_weights)
+    opt.apply_gradients(zip(grads, lstm_model.trainable_weights))
     return loss
 
 n_layers = 2
-cell = tf.keras.layers.LSTMCell(2 * n_layers)
 graphs = create_graph_train_dataset(20)
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 opt = tf.keras.optimizers.Adam(learning_rate=0.1)
