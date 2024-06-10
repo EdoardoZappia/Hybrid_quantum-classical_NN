@@ -139,6 +139,10 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
     else:
         return loss
 
+def adjust_learning_rate(optimizer, batch_size, base_lr=0.1, scale_factor=0.1):
+    new_lr = base_lr * scale_factor ** (batch_size / 256)
+    optimizer.learning_rate.assign(new_lr)
+
 def train_step(graph_cost):
     """Single optimization step in the training procedure."""
 
@@ -156,7 +160,7 @@ def train_step(graph_cost):
 n_layers = 2
 cell = tf.keras.layers.GRUCell(2 * n_layers)
 
-graphs = create_graph_train_dataset(40)
+graphs = create_graph_train_dataset(120)
 # This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 
@@ -169,31 +173,40 @@ opt = tf.keras.optimizers.Adam(learning_rate=0.1)
 
 # Set the number of training epochs
 epochs = 10
+batch_size = 40
 
 for epoch in range(epochs):
     print(f"Epoch {epoch+1}")
-    for graph_cost in graph_cost_list:
-        total_loss = np.array([])       
-        loss = train_step(graph_cost)
-        total_loss = np.append(total_loss, loss.numpy())
+    for batch in iterate_minibatches(graph_cost_list, batch_size, shuffle=True):
+        adjust_learning_rate(opt, batch_size)
+
+        total_loss = np.array([])
+        batch_graphs = batch
+        for i, graph_cost in enumerate(batch_graphs):
+            loss = train_step(graph_cost)
+            total_loss = np.append(total_loss, loss.numpy())
+        # Log every 5 batches.
+        #if i % 5 == 0:
+        print(f" > Graph {i+1}/{len(graph_cost_list)} - Loss: {loss[0][0]}")
         print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
 new_graph = nx.gnp_random_graph(12, p=3 / 7)
 new_cost = qaoa_maxcut_graph(new_graph)
 
+nx.draw(new_graph)
 plt.figure(figsize=(8, 8))
 nx.draw(new_graph)
-plt.savefig("GRU_test_graph_120dataset_10epochs.png")
+plt.savefig("GRU_test_graph_120dataset_10epochs_40batchsize.png")
 
 start_zeros = tf.zeros(shape=(2 * n_layers, 1))
 res = recurrent_loop(new_cost, intermediate_steps=True)
-
+# Inizializza le variabili per memorizzare i valori di guess
 guess_list = []
 guess_list.append(start_zeros)
 
-# Execute 10 iterations of the GRU model
+# Esegui 10 iterazioni
 for i in range(10):
-    guess = res[i]
+    guess = res[i]  # Supponiamo che res abbia almeno 10 elementi
     guess_list.append(guess)
 
 # Losses from the hybrid GRU model
@@ -244,5 +257,5 @@ plt.legend()
 plt.ylabel("Cost function", fontsize=12)
 plt.xlabel("Iteration", fontsize=12)
 ax.set_xticks([0, 5, 10, 15, 20])
-plt.savefig("GRU_40dataset_10epochs.png")
+plt.savefig("GRU_120dataset_10epochs_40batchsize.png")
 plt.show()
