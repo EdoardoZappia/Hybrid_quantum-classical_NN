@@ -86,10 +86,10 @@ def hybrid_iteration(inputs, graph_cost, lstm_cell, n_layers=2):
 #        return costs, loss
 
 def recurrent_loop(graph_cost, lstm_cell, n_layers=2, intermediate_steps=False, num_iterations=10):
-    initial_cost = tf.random.uniform(shape=(1, 1))
-    initial_params = tf.random.uniform(shape=(1, 2 * n_layers))
-    initial_h = tf.random.uniform(shape=(1, 2 * n_layers))
-    initial_c = tf.random.uniform(shape=(1, 2 * n_layers))
+    initial_cost = tf.ones(shape=(1, 1))
+    initial_params = tf.ones(shape=(1, 2 * n_layers))
+    initial_h = tf.ones(shape=(1, 2 * n_layers))
+    initial_c = tf.ones(shape=(1, 2 * n_layers))
 
     outputs = [hybrid_iteration([initial_cost, initial_params, initial_h, initial_c], graph_cost, lstm_cell, n_layers)]
     for _ in range(1, num_iterations):
@@ -97,8 +97,7 @@ def recurrent_loop(graph_cost, lstm_cell, n_layers=2, intermediate_steps=False, 
     costs = [output[0] for output in outputs]
 
     # Calcoliamo la loss come la somma del miglioramento osservato in ciascuna iterazione
-    improvement = tf.reduce_sum(initial_cost - costs)
-    loss = -improvement
+    loss = observed_improvement_loss(costs)
 
     if intermediate_steps:
         params = [output[1] for output in outputs]
@@ -161,36 +160,26 @@ def create_test_graph(n_nodes=20):
     edge_prob = k / n_nodes
     return nx.erdos_renyi_graph(n_nodes, edge_prob)
 
-def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10):
-    # Apply the RNN (be sure that training was performed)
-    res = recurrent_loop(graph_cost, intermediate_steps=True)
+def test_model(lstm_cell_trained, graph_cost, n_layers=2, num_iterations=10, output_filename="cost_function_plot.png"):
+    initial_cost = tf.ones(shape=(1, 1))
+    initial_params = tf.ones(shape=(1, 2 * n_layers))
+    initial_h = tf.ones(shape=(1, 2 * n_layers))
+    initial_c = tf.ones(shape=(1, 2 * n_layers))
 
-    # Extract all angle suggestions
-    guess_0 = res[0]
-    guess_1 = res[1]
-    guess_2 = res[2]
-    guess_3 = res[3]
-    guess_4 = res[4]
-    final_loss = res[5]
+    costs = []
+    outputs = [hybrid_iteration([initial_cost, initial_params, initial_h, initial_c], graph_cost, lstm_cell_trained, n_layers)]
+    costs.append(outputs[0][0].numpy().flatten()[0])
+    
+    for _ in range(1, num_iterations):
+        outputs.append(hybrid_iteration(outputs[-1], graph_cost, lstm_cell_trained, n_layers))
+        costs.append(outputs[-1][0].numpy().flatten()[0])
 
-    # Wrap them into a list
-    guesses = [tf.zeros(shape=(2 * n_layers, 1)), guess_0, guess_1, guess_2, guess_3, guess_4]
-
-    # Losses from the hybrid LSTM model
-    lstm_losses = [graph_cost(tf.reshape(guess, shape=(2, n_layers))) for guess in guesses]
-
-    return lstm_losses
-
-# Wrap them into a list
-guesses = [start_zeros, guess_0, guess_1, guess_2, guess_3, guess_4]
-
-# Losses from the hybrid LSTM model
-lstm_losses = [new_cost(tf.reshape(guess, shape=(2, n_layers))) for guess in guesses]
+    return costs
 
 # Main script
-graphs = create_graph_train_dataset(12)
+graphs = create_graph_train_dataset(100)
 learning_rate = 0.1
-batch_size = 4  # Reduce batch size to save memory
+batch_size = 10  # Reduce batch size to save memory
 epoch = 10  # Reduce epochs to save memory
 n_thread = 2  # Reduce threads to save memory
 n_layers = 2
