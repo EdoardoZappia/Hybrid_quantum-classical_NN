@@ -21,8 +21,8 @@ tf.random.set_seed(42)
 def create_graph_train_dataset(num_graphs):
     dataset = []
     for _ in range(num_graphs):
-        n_nodes= random.randint(6, 9)
-        k = random.randint(3, n_nodes-1)
+        n_nodes = random.randint(6, 9)
+        k = random.randint(3, n_nodes - 1)
         edge_prob = k / n_nodes
         G = nx.erdos_renyi_graph(n_nodes, edge_prob)
         
@@ -87,8 +87,7 @@ def observed_improvement_loss(costs):
 def hybrid_iteration(inputs, graph_cost, n_layers=2):
     """Perform a single time step in the computational graph of the custom RNN."""
 
-    # Unpack the input list containing the previous cost, parameters,
-    # and hidden states (denoted as 'h').
+    # Unpack the input list containing the previous cost, parameters, and hidden states (denoted as 'h').
     prev_cost = inputs[0]
     prev_params = inputs[1]
     prev_h = inputs[2]
@@ -96,9 +95,8 @@ def hybrid_iteration(inputs, graph_cost, n_layers=2):
     # Concatenate the previous parameters and previous cost to create new input
     new_input = tf.concat([prev_cost, prev_params], axis=-1)
 
-    # Call the GRU cell, which outputs new values for the parameters along
-    # with new internal states h
-    new_params, new_h = cell(new_input, states=[prev_h])
+    # Call the GRU cell, which outputs new values for the parameters along with new internal state h
+    new_params, new_h = cell(new_input, states=prev_h)
 
     # Reshape the parameters to correctly match those expected by PennyLane
     _params = tf.reshape(new_params, shape=(2, n_layers))
@@ -159,7 +157,7 @@ n_layers = 2
 cell = tf.keras.layers.GRUCell(2 * n_layers)
 
 graphs = create_graph_train_dataset(40)
-#This is the list of QAOA cost functions for each graph
+# This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
 
 # These cost functions will be used to train the GRU model:
@@ -185,7 +183,7 @@ new_cost = qaoa_maxcut_graph(new_graph)
 
 plt.figure(figsize=(8, 8))
 nx.draw(new_graph)
-plt.savefig("GRU_test_graph_120dataset_10epochs.png")
+plt.savefig("test_graph_120dataset_10epochs.png")
 
 start_zeros = tf.zeros(shape=(2 * n_layers, 1))
 res = recurrent_loop(new_cost, intermediate_steps=True)
@@ -246,5 +244,5 @@ plt.legend()
 plt.ylabel("Cost function", fontsize=12)
 plt.xlabel("Iteration", fontsize=12)
 ax.set_xticks([0, 5, 10, 15, 20])
-plt.savefig("GRU_40dataset_10epochs.png")
+plt.savefig("40dataset_10epochs.png")
 plt.show()
