@@ -84,6 +84,20 @@ def observed_improvement_loss(costs):
 
     return tf.reshape(loss, shape=(1, 1))
 
+def cost_based_loss(costs):
+    """
+    Compute the loss based on the cost Hamiltonian values from each iteration.
+    
+    Args:
+    costs (list of tf.Tensor): A list of tensors representing the cost at each iteration.
+    
+    Returns:
+    tf.Tensor: The loss based on the final cost.
+    """
+    final_cost = costs[-1]
+    loss = final_cost
+    return tf.reshape(loss, shape=(1, 1))
+
 def hybrid_iteration(inputs, graph_cost, n_layers=2):
     """Perform a single time step in the computational graph of the custom RNN."""
 
@@ -131,8 +145,9 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
     #DEBUG
     
     # Calculate the observed improvement loss
-    loss = observed_improvement_loss(costs)
-    
+    #loss = observed_improvement_loss(costs)
+    loss = cost_based_loss(costs)
+
     if intermediate_steps:
         params = [output[1] for output in outputs]
         return params + [loss]
