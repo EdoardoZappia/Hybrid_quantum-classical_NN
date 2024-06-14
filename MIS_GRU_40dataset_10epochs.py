@@ -165,7 +165,7 @@ graph_cost_list = [qaoa_MIS_graph(g) for g in graphs]
 # At each iteration of the GRU, one execution of the quantum circuit is performed.
 
 # Select an optimizer
-opt = tf.keras.optimizers.Adam(learning_rate=0.1)
+opt = tf.keras.optimizers.Adam(learning_rate=0.01)  # Riduci il tasso di apprendimento
 
 # Set the number of training epochs
 epochs = 10
