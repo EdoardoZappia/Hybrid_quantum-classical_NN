@@ -53,8 +53,8 @@ def qaoa_MIS_graph(graph, n_layers=2):
     cost_h, mixer_h = qaoa.max_independent_set(graph)
 
     # DEBUG
-    print("Cost Hamiltonian:", cost_h)
-    print("Mixer Hamiltonian:", mixer_h)
+    #print("Cost Hamiltonian:", cost_h)
+    #print("Mixer Hamiltonian:", mixer_h)
 
 
     # Define the QAOA layer structure
@@ -175,6 +175,10 @@ def train_step(graph_cost):
 
     # Evaluates gradients, cell is the GRU cell defined previously
     grads = tape.gradient(loss, cell.trainable_weights)
+
+    # DEBUG
+    for i, grad in enumerate(grads):
+        print(f"Gradient {i}: {grad}")
 
     # Apply gradients and update the weights of the GRU cell
     opt.apply_gradients(zip(grads, cell.trainable_weights))
