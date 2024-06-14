@@ -45,6 +45,12 @@ def qaoa_MIS_graph(graph, n_layers=2):
     dev = qml.device("default.qubit.tf", wires=n_nodes)
     # Define the QAOA cost function
     cost_h, mixer_h = qaoa.max_independent_set(graph)
+
+    # DEBUG
+    print("Cost Hamiltonian:", cost_h)
+    print("Mixer Hamiltonian:", mixer_h)
+
+
     # Define the QAOA layer structure
     def qaoa_layer(gamma, alpha):
         qaoa.cost_layer(gamma, cost_h)
