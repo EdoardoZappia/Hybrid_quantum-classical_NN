@@ -181,7 +181,7 @@ cell = tf.keras.layers.GRUCell(2 * n_layers)
 
 graphs = create_graph_train_dataset(120)
 # This is the list of QAOA cost functions for each graph
-graph_cost_list = [qaoa_maxcut_graph(g) for g in graphs]
+graph_cost_list = [qaoa_MIS_graph(g) for g in graphs]
 
 # These cost functions will be used to train the GRU model:
 # The GRU model will take as input the cost functions and will output the QAOA solution.
