@@ -13,6 +13,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Disabilita tutti i messaggi di logging
+tf.get_logger().setLevel('ERROR')
+
 # Fix the seed for reproducibility, which affects all random functions in this demo
 random.seed(42)
 np.random.seed(42)
