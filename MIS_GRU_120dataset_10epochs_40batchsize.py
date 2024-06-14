@@ -210,7 +210,7 @@ for epoch in range(epochs):
         print(f" >> Mean Loss during epoch: {np.mean(total_loss)}")
 
 new_graph = nx.gnp_random_graph(12, p=3 / 7)
-new_cost = qaoa_MSI_graph(new_graph)
+new_cost = qaoa_MIS_graph(new_graph)
 
 nx.draw(new_graph)
 plt.figure(figsize=(8, 8))
