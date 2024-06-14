@@ -138,9 +138,13 @@ def hybrid_iteration(inputs, graph_cost, n_layers=2):
 def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterations=10):
     """Creates the recurrent loop for the Recurrent Neural Network."""
     # Initialize starting all inputs (cost, parameters, hidden states) as zeros.
-    initial_cost = tf.zeros(shape=(1, 1))
-    initial_params = tf.zeros(shape=(1, 2 * n_layers))
-    initial_h = tf.zeros(shape=(1, 2 * n_layers))
+    #initial_cost = tf.zeros(shape=(1, 1))
+    #initial_params = tf.zeros(shape=(1, 2 * n_layers))
+    #initial_h = tf.zeros(shape=(1, 2 * n_layers))
+
+    initial_cost = tf.random.uniform(shape=(1, 1), minval=0, maxval=0.1)
+    initial_params = tf.random.uniform(shape=(1, 2 * n_layers), minval=0, maxval=0.1)
+    initial_h = tf.random.uniform(shape=(1, 2 * n_layers), minval=0, maxval=0.1)
 
     # Initialize the output list with the initial state
     outputs = [hybrid_iteration([initial_cost, initial_params, initial_h], graph_cost, n_layers)]
