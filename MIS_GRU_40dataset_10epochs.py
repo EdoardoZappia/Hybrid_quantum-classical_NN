@@ -22,7 +22,7 @@ def create_graph_train_dataset(num_graphs):
     dataset = []
     for _ in range(num_graphs):
         n_nodes = random.randint(3, 6)  #CAMBIATO A GRAFI A 3, 4, 5 E 6 NODI
-        k = random.randint(3, n_nodes - 1)
+        k = random.randint(2, n_nodes - 1)  # CAMBIATO A K DA 2 A N-1
         edge_prob = k / n_nodes
         G = nx.erdos_renyi_graph(n_nodes, edge_prob)
         
