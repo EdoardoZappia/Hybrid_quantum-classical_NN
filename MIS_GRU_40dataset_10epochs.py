@@ -21,7 +21,7 @@ tf.random.set_seed(42)
 def create_graph_train_dataset(num_graphs):
     dataset = []
     for _ in range(num_graphs):
-        n_nodes = random.randint(6, 9)
+        n_nodes = random.randint(3, 6)  #CAMBIATO A GRAFI A 3, 4, 5 E 6 NODI
         k = random.randint(3, n_nodes - 1)
         edge_prob = k / n_nodes
         G = nx.erdos_renyi_graph(n_nodes, edge_prob)
@@ -156,7 +156,7 @@ def train_step(graph_cost):
 n_layers = 2
 cell = tf.keras.layers.GRUCell(2 * n_layers)
 
-graphs = create_graph_train_dataset(40)
+graphs = create_graph_train_dataset(20)  # 20 GRAFI PER IL TRAINING
 # This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_MIS_graph(g) for g in graphs]
 
@@ -183,7 +183,7 @@ new_cost = qaoa_MIS_graph(new_graph)
 
 plt.figure(figsize=(8, 8))
 nx.draw(new_graph)
-plt.savefig("GRU_MIS_test_graph_120dataset_10epochs.png")
+plt.savefig("GRU_MIS_test_graph_20dataset_10epochs.png")
 
 start_zeros = tf.zeros(shape=(2 * n_layers, 1))
 res = recurrent_loop(new_cost, intermediate_steps=True)
@@ -244,5 +244,5 @@ plt.legend()
 plt.ylabel("Loss function", fontsize=12)
 plt.xlabel("Iteration", fontsize=12)
 ax.set_xticks([0, 5, 10, 15, 20])
-plt.savefig("GRU_MIS_40dataset_10epochs.png")
+plt.savefig("GRU_MIS_20dataset_10epochs.png")
 plt.show()
