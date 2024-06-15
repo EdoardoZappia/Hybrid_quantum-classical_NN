@@ -149,8 +149,8 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
     #DEBUG
     
     # Calculate the observed improvement loss
-    #loss = observed_improvement_loss(costs)
-    loss = cost_based_loss(costs)
+    loss = observed_improvement_loss(costs)
+    #loss = cost_based_loss(costs)
 
     if intermediate_steps:
         params = [output[1] for output in outputs]

@@ -161,8 +161,8 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
     #DEBUG
     
     # Calculate the observed improvement loss
-    #loss = observed_improvement_loss(costs)
-    loss = cost_based_loss(costs)
+    loss = observed_improvement_loss(costs)
+    #loss = cost_based_loss(costs)
 
     if intermediate_steps:
         params = [output[1] for output in outputs]
@@ -191,7 +191,7 @@ def train_step(graph_cost):
 n_layers = 2
 cell = tf.keras.layers.GRUCell(2 * n_layers)
 
-graphs = create_graph_train_dataset(20)  # 20 GRAFI PER IL TRAINING
+graphs = create_graph_train_dataset(40)  # 20 GRAFI PER IL TRAINING
 # This is the list of QAOA cost functions for each graph
 graph_cost_list = [qaoa_MIS_graph(g) for g in graphs]
 
