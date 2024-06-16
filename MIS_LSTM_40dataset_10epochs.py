@@ -21,8 +21,8 @@ tf.random.set_seed(42)
 def create_graph_train_dataset(num_graphs):
     dataset = []
     for _ in range(num_graphs):
-        n_nodes= random.randint(6, 9)
-        k = random.randint(3, n_nodes-1)
+        n_nodes = random.randint(3, 6)  #CAMBIATO A GRAFI A 3, 4, 5 E 6 NODI
+        k = random.randint(2, n_nodes - 1)  # CAMBIATO A K DA 2 A N-1
         edge_prob = k / n_nodes
         G = nx.erdos_renyi_graph(n_nodes, edge_prob)
         
@@ -44,7 +44,7 @@ def qaoa_MIS_graph(graph, n_layers=2):
     # Initialize the QAOA device
     dev = qml.device("default.qubit.tf", wires=n_nodes) #, analytic=True)
     # Define the QAOA cost function
-    cost_h, mixer_h = qaoa.cost.max_independent_set(graph)
+    cost_h, mixer_h = qaoa.max_independent_set(graph)
     # Define the QAOA layer structure
     def qaoa_layer(gamma, alpha):
         qaoa.cost_layer(gamma, cost_h)
@@ -84,6 +84,20 @@ def observed_improvement_loss(costs):
 
     return tf.reshape(loss, shape=(1, 1))
 
+def cost_based_loss(costs):
+    """
+    Compute the loss based on the cost Hamiltonian values from each iteration.
+    
+    Args:
+    costs (list of tf.Tensor): A list of tensors representing the cost at each iteration.
+    
+    Returns:
+    tf.Tensor: The loss based on the final cost.
+    """
+    final_cost = costs[-1]
+    loss = final_cost
+    return tf.reshape(loss, shape=(1, 1))
+
 def hybrid_iteration(inputs, graph_cost, n_layers=2):
     """Perform a single time step in the computational graph of the custom RNN."""
 
@@ -116,10 +130,10 @@ def hybrid_iteration(inputs, graph_cost, n_layers=2):
 def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterations=10):
     """Creates the recurrent loop for the Recurrent Neural Network."""
     # Initialize starting all inputs (cost, parameters, hidden states) as zeros.
-    initial_cost = tf.zeros(shape=(1, 1))
-    initial_params = tf.zeros(shape=(1, 2 * n_layers))
-    initial_h = tf.zeros(shape=(1, 2 * n_layers))
-    initial_c = tf.zeros(shape=(1, 2 * n_layers))
+    initial_cost = tf.random.uniform(shape=(1, 1), minval=0, maxval=0.1)
+    initial_params = tf.random.uniform(shape=(1, 2 * n_layers), minval=0, maxval=0.1)
+    initial_h = tf.random.uniform(shape=(1, 2 * n_layers), minval=0, maxval=0.1)
+    initial_c = tf.random.uniform(shape=(1, 2 * n_layers), minval=0, maxval=0.1)
 
     # Initialize the output list with the initial state
     outputs = [hybrid_iteration([initial_cost, initial_params, initial_h, initial_c], graph_cost, n_layers)]
@@ -136,8 +150,8 @@ def recurrent_loop(graph_cost, n_layers=2, intermediate_steps=False, num_iterati
     #DEBUG
     
     # Calculate the observed improvement loss
-    loss = observed_improvement_loss(costs)
-    
+    #loss = observed_improvement_loss(costs)
+    loss = cost_based_loss(costs)
     
     if intermediate_steps:
         params = [output[1] for output in outputs]
@@ -189,7 +203,7 @@ new_cost = qaoa_MIS_graph(new_graph)
 
 plt.figure(figsize=(8, 8))
 nx.draw(new_graph)
-plt.savefig("MIS_test_graph_120dataset_10epochs.png")
+plt.savefig("MIS_LSTM_test_graph_40dataset_10epochs.png")
 
 start_zeros = tf.zeros(shape=(2 * n_layers, 1))
 res = recurrent_loop(new_cost, intermediate_steps=True)
@@ -250,5 +264,5 @@ plt.legend()
 plt.ylabel("Cost function", fontsize=12)
 plt.xlabel("Iteration", fontsize=12)
 ax.set_xticks([0, 5, 10, 15, 20])
-plt.savefig("MIS_40dataset_10epochs.png")
+plt.savefig("MIS_LSTM_40dataset_10epochs.png")
 plt.show()
